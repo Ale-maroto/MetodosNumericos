@@ -4,17 +4,21 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 1.0.0
-#Unifique el Método de bisección y el de rgla falsa
-
+#Versión 1.0.1
+#Agrege más varibles, ya que no me las aceptaba en la función
 import math
 
-# Ingresar función
 funcion = input("Ingresa la función en términos de x: ")
 
 def f(x):
-    return eval(funcion)
-
+    return eval(funcion, {
+        "x": x,
+        "exp": math.exp,
+        "sin": math.sin,
+        "cos": math.cos,
+        "tan": math.tan,
+        "log": math.log
+    })
 # Intervalo
 a = float(input("Ingresa el valor de a: "))
 b = float(input("Ingresa el valor de b: "))
@@ -73,3 +77,5 @@ else:
 
     print("\nRaíz aproximada:", round(xr,6))
     print("Error final:", error)
+
+
