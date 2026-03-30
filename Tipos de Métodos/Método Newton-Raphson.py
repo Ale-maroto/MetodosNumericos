@@ -98,6 +98,3 @@ def newton_raphson():
 
 newton_raphson()
 
-
-# Ejecutar
-newton_raphson()
