@@ -4,8 +4,8 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 1.0.1
-#Agrege más varibles, ya que no me las aceptaba en la función
+#Versión 1.0.2
+#Agrege más varibles.
 import math
 
 funcion = input("Ingresa la función en términos de x: ")
@@ -17,7 +17,10 @@ def f(x):
         "sin": math.sin,
         "cos": math.cos,
         "tan": math.tan,
-        "log": math.log
+        "log": math.log,
+        "sqrt": math.sqrt,
+        "pi": math.pi,
+        "e": math.e
     })
 # Intervalo
 a = float(input("Ingresa el valor de a: "))
@@ -77,5 +80,6 @@ else:
 
     print("\nRaíz aproximada:", round(xr,6))
     print("Error final:", error)
+
 
 
