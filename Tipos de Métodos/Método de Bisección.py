@@ -5,7 +5,12 @@ Created on Tue Mar 10 13:23:12 2026
 @author: Alejandro
 """
 
+#Versión 2.0.0
+#Se agrego código para gráficar
+ 
 import math
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Ingresar la función
 funcion = input("Ingresa la función en términos de x: ")
@@ -33,12 +38,20 @@ else:
     i = 1
     error = abs(b - a)
 
+    # Guardar iteraciones
+    p_vals = []
+    fp_vals = []
+
     while error > error_permitido:
         
         p = (a + b) / 2
         fp = f(p)
 
         print(i, "\t", round(a,6), "\t", round(b,6), "\t", round(p,6), "\t", round(fp,6), "\t", round(error,6))
+
+        # Guardar puntos
+        p_vals.append(p)
+        fp_vals.append(fp)
 
         if f(a) * fp < 0:
             b = p
@@ -50,3 +63,21 @@ else:
 
     print("\nRaíz aproximada:", round(p,6))
     print("Error final:", error)
+
+    # ------------------ GRAFICA ------------------
+    x_vals = np.linspace(a-1, b+1, 100)
+    y_vals = [f(x) for x in x_vals]
+
+    plt.plot(x_vals, y_vals, label="f(x)")
+    plt.axhline(0)  # eje x
+
+    # Puntos de iteraciones
+    plt.scatter(p_vals, fp_vals, label="Iteraciones")
+
+    plt.title("Método de Bisección")
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.legend()
+    plt.grid()
+
+    plt.show()
