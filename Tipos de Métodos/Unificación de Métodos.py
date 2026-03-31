@@ -4,16 +4,33 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 1.1.0
-#Cambie el menu al principio y luego la función.
+#Versión 2.0.0
+#Agrege el método de newton-raphson
+
 import math
+import sympy as sp
+
+x = sp.symbols('x')
 
 # -------------------------
-# Función evaluable
+# MENÚ
 # -------------------------
-def f(x):
+print("===== METODOS NUMERICOS =====")
+print("1. Método de Bisección")
+print("2. Método de Regla Falsa")
+print("3. Método de Newton-Raphson")
+
+opcion = input("Seleccione el método: ")
+
+# -------------------------
+# FUNCIÓN
+# -------------------------
+funcion = input("\nIngresa la función en términos de x: ")
+
+# Función evaluable
+def f(x_val):
     return eval(funcion, {
-        "x": x,
+        "x": x_val,
         "exp": math.exp,
         "sin": math.sin,
         "cos": math.cos,
@@ -25,69 +42,96 @@ def f(x):
     })
 
 # -------------------------
-# MENÚ PRINCIPAL
+# MÉTODO DE NEWTON
 # -------------------------
-print("===== METODOS NUMERICOS =====")
-print("1. Método de Bisección")
-print("2. Método de Regla Falsa")
+if opcion == "3":
 
-opcion = input("Seleccione el método: ")
+    x0 = float(input("Ingresa el valor inicial: "))
+    error_permitido = float(input("Ingresa el error permitido: "))
 
-# -------------------------
-# DATOS
-# -------------------------
-funcion = input("\nIngresa la función en términos de x: ")
-a = float(input("Ingresa el valor de a: "))
-b = float(input("Ingresa el valor de b: "))
-error_permitido = float(input("Ingresa el error permitido: "))
+    # Derivada automática
+    f_expr = sp.sympify(funcion)
+    df_expr = sp.diff(f_expr, x)
+    df = sp.lambdify(x, df_expr, "math")
 
-# -------------------------
-# VALIDACIÓN
-# -------------------------
-if f(a) * f(b) >= 0:
-    print("\nNo se puede aplicar el método en este intervalo.")
-    print("f(a)*f(b) debe ser menor que 0.")
-else:
+    print("\nDerivada:", df_expr)
 
-    print("\nIteraciones:\n")
-    print("i\t a\t\t b\t\t xr\t\t f(xr)\t\t Error")
+    print("\nIter |    x_n     |    f(x_n)   |   f'(x_n)  |    Error")
+    print("----------------------------------------------------------")
 
     i = 1
-    xr_anterior = a
-    error = abs(b - a)
+    error = 100
 
     while error > error_permitido:
 
-        # BISECCIÓN
-        if opcion == "1":
-            xr = (a + b) / 2
-
-        # REGLA FALSA
-        elif opcion == "2":
-            xr = b - (f(b) * (a - b)) / (f(a) - f(b))
-
-        else:
-            print("Opción inválida")
+        if df(x0) == 0:
+            print("\nError: derivada cero.")
             break
 
-        fxr = f(xr)
+        x1 = x0 - f(x0) / df(x0)
 
         if i > 1:
-            error = abs((xr - xr_anterior) / xr)
+            error = abs((x1 - x0) / x1)
 
-        print(i, "\t", round(a,6), "\t", round(b,6), "\t", round(xr,6), "\t", round(fxr,6), "\t", round(error,6))
+        print(i, "\t", round(x0,6), "\t", round(f(x0),6), "\t", round(df(x0),6), "\t", round(error,6))
 
-        # Actualizar intervalo
-        if f(a) * fxr < 0:
-            b = xr
-        else:
-            a = xr
-
-        xr_anterior = xr
+        x0 = x1
         i += 1
 
-    print("\nRaíz aproximada:", round(xr,6))
+    print("\nRaíz aproximada:", round(x1,6))
     print("Error final:", error)
+
+# -------------------------
+# MÉTODOS CON INTERVALO
+# -------------------------
+else:
+
+    a = float(input("Ingresa el valor de a: "))
+    b = float(input("Ingresa el valor de b: "))
+    error_permitido = float(input("Ingresa el error permitido: "))
+
+    if f(a) * f(b) >= 0:
+        print("\nNo se puede aplicar el método en este intervalo.")
+    else:
+
+        print("\nIter | a | b | xr | f(xr) | Error")
+        print("------------------------------------------------")
+
+        i = 1
+        xr_anterior = a
+        error = abs(b - a)
+
+        while error > error_permitido:
+
+            # BISECCIÓN
+            if opcion == "1":
+                xr = (a + b) / 2
+
+            # REGLA FALSA
+            elif opcion == "2":
+                xr = b - (f(b) * (a - b)) / (f(a) - f(b))
+
+            else:
+                print("Opción inválida")
+                break
+
+            fxr = f(xr)
+
+            if i > 1:
+                error = abs((xr - xr_anterior) / xr)
+
+            print(i, "\t", round(a,6), "\t", round(b,6), "\t", round(xr,6), "\t", round(fxr,6), "\t", round(error,6))
+
+            if f(a) * fxr < 0:
+                b = xr
+            else:
+                a = xr
+
+            xr_anterior = xr
+            i += 1
+
+        print("\nRaíz aproximada:", round(xr,6))
+        print("Error final:", error)
 
 
 
