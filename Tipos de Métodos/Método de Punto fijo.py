@@ -4,9 +4,12 @@ Created on Thu Mar 26 14:06:13 2026
 
 @author: Alejandro
 """
-# Versión 3.0.0
-
+#Versión 4.0.0
+#Agrege las funciones matematicas y ltambien la grafica
 import sympy as sp
+import numpy as np
+import matplotlib.pyplot as plt
+import math
 
 def punto_fijo():
 
@@ -21,7 +24,12 @@ def punto_fijo():
 
     try:
         g_expr = sp.sympify(g_funcion)
-        g = sp.lambdify(x, g_expr, "math")
+
+        # Función con soporte matemático
+        def g(val):
+            return eval(g_funcion, {"x": val, "math": math,
+                                   "sin": math.sin, "cos": math.cos, "tan": math.tan,
+                                   "exp": math.exp, "log": math.log, "sqrt": math.sqrt})
     except:
         print("Error en la función g(x).")
         return
@@ -45,6 +53,10 @@ def punto_fijo():
     print("Iter |    x_i     |    x_(i+1)   |    Ea %")
     print("------------------------------------------------")
 
+    # Guardar iteraciones
+    x_vals_iter = []
+    gx_vals_iter = []
+
     while ea > error_max:
 
         try:
@@ -61,7 +73,11 @@ def punto_fijo():
 
         print(f"{iteracion:4} | {x0:10.6f} | {x1:10.6f} | {ea:10.6f}")
 
-        # control de divergencia
+        # Guardar puntos
+        x_vals_iter.append(x0)
+        gx_vals_iter.append(g(x0))
+
+        # Control de divergencia
         if abs(x1) > 1e6:
             print("\nEl método diverge.")
             return
@@ -72,7 +88,24 @@ def punto_fijo():
     print("\nRaiz aproximada:", x1)
     print("Error aproximado:", ea, "%")
 
+    # -------- GRAFICA --------
+    x_min = min(x_vals_iter + [x1]) - 1
+    x_max = max(x_vals_iter + [x1]) + 1
+    x_vals = np.linspace(x_min, x_max, 200)
+    y_vals = [g(val) for val in x_vals]
 
-# Ejecutar
+    plt.plot(x_vals, y_vals, label="g(x)")
+    plt.axhline(0)
+
+    # Puntos de iteraciones
+    plt.scatter(x_vals_iter, gx_vals_iter, label="Iteraciones")
+
+    plt.title("Método de Punto Fijo")
+    plt.xlabel("x")
+    plt.ylabel("g(x)")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
 punto_fijo()
-
