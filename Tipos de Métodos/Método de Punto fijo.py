@@ -4,35 +4,34 @@ Created on Thu Mar 26 14:06:13 2026
 
 @author: Alejandro
 """
-# Versión 1.1.0
+#Version 2.0.0
+
 import sympy as sp
+import math
 
 def punto_fijo_mejorado():
 
     x = sp.symbols('x')
 
-    print("=== METODO DE PUNTO FIJO  ===\n")
+    print("=== METODO DE PUNTO FIJO (PRO CORREGIDO) ===\n")
 
     funcion = input("Ingrese f(x)=0: ")
     x0 = float(input("Ingrese valor inicial x0: "))
     error_max = float(input("Ingrese error permitido (%): "))
 
-    f_expr = sp.sympify(funcion)
-
-    # Posibles transformaciones
-    g_list = [
-        x - f_expr,                         # g(x) = x - f(x)
-        x + f_expr,                         # g(x) = x + f(x)
-        -f_expr,                            # g(x) = -f(x)
-    ]
-
-    # Intentar despejar si es posible
     try:
-        soluciones = sp.solve(f_expr, x)
-        for sol in soluciones:
-            g_list.append(sol)
+        f_expr = sp.sympify(funcion)
     except:
-        pass
+        print("Error en la función ingresada.")
+        return
+
+    # Transformaciones seguras
+    g_list = [
+        x - f_expr,
+        x - 0.1*f_expr,
+        x - 0.01*f_expr,
+        x + 0.1*f_expr
+    ]
 
     print("\nProbando transformaciones...\n")
 
@@ -41,31 +40,31 @@ def punto_fijo_mejorado():
     for i, g_expr in enumerate(g_list):
 
         try:
-            g_deriv = sp.diff(g_expr, x)
-            g_deriv_func = sp.lambdify(x, g_deriv)
+            g = sp.lambdify(x, g_expr, "math")
+            g_deriv = sp.lambdify(x, sp.diff(g_expr, x), "math")
 
-            val = abs(g_deriv_func(x0))
+            val = abs(g_deriv(x0))
 
             print(f"g{i+1}(x) = {g_expr}  --->  |g'(x0)| = {val:.4f}")
 
             if val < 1:
                 mejor_g = g_expr
-                print("✔ Esta transformación puede converger\n")
+                print("✔ Posible convergencia\n")
                 break
             else:
                 print("✖ No converge\n")
 
         except:
-            print("Error evaluando esta transformación\n")
+            print(f"g{i+1} inválida\n")
 
     if mejor_g is None:
-        print("No se encontró una transformación adecuada.")
+        print("No se encontró una transformación automática adecuada.")
+        print("Intenta definir manualmente g(x).")
         return
 
-    print("Usando:")
-    print("g(x) =", mejor_g)
+    print("Usando g(x):", mejor_g)
 
-    g = sp.lambdify(x, mejor_g)
+    g = sp.lambdify(x, mejor_g, "math")
 
     ea = 100
     iteracion = 1
@@ -75,15 +74,20 @@ def punto_fijo_mejorado():
 
     while ea > error_max:
 
-        x1 = g(x0)
+        try:
+            x1 = g(x0)
+        except:
+            print("\nError numérico durante la iteración.")
+            return
 
         if iteracion > 1:
-            ea = abs((x1 - x0) / x1) * 100
+            ea = abs((x1 - x0) / x1) * 100 if x1 != 0 else 0
 
         print(f"{iteracion:4} | {x0:10.6f} | {x1:10.6f} | {ea:10.6f}")
 
-        if abs(x1) > 1e6:
-            print("\nEl metodo diverge.")
+        # Control de divergencia
+        if abs(x1) > 1e6 or math.isnan(x1):
+            print("\nEl método diverge.")
             return
 
         x0 = x1
@@ -91,7 +95,6 @@ def punto_fijo_mejorado():
 
     print("\nRaiz aproximada:", x1)
     print("Error aproximado:", ea, "%")
-
 
 punto_fijo_mejorado()
 
