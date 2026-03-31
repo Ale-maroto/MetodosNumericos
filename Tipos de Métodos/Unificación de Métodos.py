@@ -4,12 +4,13 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 1.0.2
-#Agrege más varibles.
+#Versión 1.1.0
+#Cambie el menu al principio y luego la función.
 import math
 
-funcion = input("Ingresa la función en términos de x: ")
-
+# -------------------------
+# Función evaluable
+# -------------------------
 def f(x):
     return eval(funcion, {
         "x": x,
@@ -22,20 +23,27 @@ def f(x):
         "pi": math.pi,
         "e": math.e
     })
-# Intervalo
+
+# -------------------------
+# MENÚ PRINCIPAL
+# -------------------------
+print("===== METODOS NUMERICOS =====")
+print("1. Método de Bisección")
+print("2. Método de Regla Falsa")
+
+opcion = input("Seleccione el método: ")
+
+# -------------------------
+# DATOS
+# -------------------------
+funcion = input("\nIngresa la función en términos de x: ")
 a = float(input("Ingresa el valor de a: "))
 b = float(input("Ingresa el valor de b: "))
-
-# Error permitido
 error_permitido = float(input("Ingresa el error permitido: "))
 
-# Elegir método
-print("\nSelecciona el método:")
-print("1. Bisección")
-print("2. Regla Falsa")
-opcion = input("Opción: ")
-
-# Verificar condición
+# -------------------------
+# VALIDACIÓN
+# -------------------------
 if f(a) * f(b) >= 0:
     print("\nNo se puede aplicar el método en este intervalo.")
     print("f(a)*f(b) debe ser menor que 0.")
@@ -50,11 +58,11 @@ else:
 
     while error > error_permitido:
 
-        # MÉTODO DE BISECCIÓN
+        # BISECCIÓN
         if opcion == "1":
             xr = (a + b) / 2
 
-        # MÉTODO DE REGLA FALSA
+        # REGLA FALSA
         elif opcion == "2":
             xr = b - (f(b) * (a - b)) / (f(a) - f(b))
 
