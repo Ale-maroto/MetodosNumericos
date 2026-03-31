@@ -4,8 +4,8 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 3.0.0
-#Agrege el método de secante
+#Versión 4.0.0
+#Agrege el método de punto fijo
 
 import math
 import sympy as sp
@@ -20,11 +20,12 @@ print("1. Método de Bisección")
 print("2. Método de Regla Falsa")
 print("3. Método de Newton-Raphson")
 print("4. Método de la Secante")
+print("5. Método de Punto Fijo")
 
 opcion = input("Seleccione el método: ")
 
 # -------------------------
-# FUNCIÓN
+# FUNCIÓN GENERAL
 # -------------------------
 funcion = input("\nIngresa la función en términos de x: ")
 
@@ -55,8 +56,8 @@ if opcion == "3":
 
     print("\nDerivada:", df_expr)
 
-    print("\nIter |    x_n     |    f(x_n)   |   f'(x_n)  |    Error")
-    print("----------------------------------------------------------")
+    print("\nIter | x_n | f(x_n) | f'(x_n) | Error")
+    print("------------------------------------------------")
 
     i = 1
     error = 100
@@ -89,8 +90,8 @@ elif opcion == "4":
     x1 = float(input("Ingresa x1: "))
     error_permitido = float(input("Ingresa el error permitido: "))
 
-    print("\nIter |    x_(i-1)   |    x_i     |    x_(i+1)   |    Error")
-    print("-------------------------------------------------------------")
+    print("\nIter | x_(i-1) | x_i | x_(i+1) | Error")
+    print("------------------------------------------------")
 
     i = 1
     error = 100
@@ -116,6 +117,64 @@ elif opcion == "4":
     print("Error final:", error)
 
 # -------------------------
+# PUNTO FIJO
+# -------------------------
+elif opcion == "5":
+
+    g_funcion = input("Ingresa g(x): ")
+    x0 = float(input("Ingresa el valor inicial: "))
+    error_permitido = float(input("Ingresa el error permitido: "))
+
+    try:
+        g_expr = sp.sympify(g_funcion)
+        g = sp.lambdify(x, g_expr, "math")
+    except:
+        print("Error en g(x).")
+        exit()
+
+    # Verificar convergencia
+    try:
+        g_deriv = sp.lambdify(x, sp.diff(g_expr, x), "math")
+        val = abs(g_deriv(x0))
+        print(f"\n|g'(x0)| = {val:.4f}")
+
+        if val >= 1:
+            print("⚠ Puede no converger\n")
+        else:
+            print("✔ Convergencia probable\n")
+    except:
+        print("No se pudo evaluar la derivada.\n")
+
+    print("\nIter | x_i | x_(i+1) | Error")
+    print("------------------------------------------------")
+
+    i = 1
+    error = 100
+
+    while error > error_permitido:
+
+        try:
+            x1 = g(x0)
+        except:
+            print("Error numérico.")
+            break
+
+        if i > 1:
+            error = abs((x1 - x0) / x1)
+
+        print(i, "\t", round(x0,6), "\t", round(x1,6), "\t", round(error,6))
+
+        if abs(x1) > 1e6:
+            print("\nEl método diverge.")
+            break
+
+        x0 = x1
+        i += 1
+
+    print("\nRaíz aproximada:", round(x1,6))
+    print("Error final:", error)
+
+# -------------------------
 # BISECCIÓN Y REGLA FALSA
 # -------------------------
 else:
@@ -137,14 +196,10 @@ else:
 
         while error > error_permitido:
 
-            # BISECCIÓN
             if opcion == "1":
                 xr = (a + b) / 2
-
-            # REGLA FALSA
             elif opcion == "2":
                 xr = b - (f(b) * (a - b)) / (f(a) - f(b))
-
             else:
                 print("Opción inválida")
                 break
