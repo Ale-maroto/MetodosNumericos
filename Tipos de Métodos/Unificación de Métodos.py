@@ -4,9 +4,10 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 4.1.0
-#Quite f(x) de el método punto fijo 
-#Tambien puse para graficar cualquier método
+#Versión 4.2.0
+#Agrege las iteraciones.
+#Ya que a la hora de agregar la grafica quite las iteraciones. 
+
 
 import math
 import sympy as sp
@@ -28,7 +29,7 @@ print("5. Método de Punto Fijo")
 opcion = input("Seleccione el método: ")
 
 # -------------------------
-# FUNCIÓN GENERAL (excepto punto fijo)
+# FUNCIÓN GENERAL
 # -------------------------
 if opcion != "5":
     funcion = input("\nIngresa la función en términos de x: ")
@@ -47,7 +48,7 @@ if opcion != "5":
         })
 
 # -------------------------
-# FUNCIÓN PARA GRAFICAR
+# GRAFICAR
 # -------------------------
 def graficar(func, rango=(-5,5), puntos_raiz=[]):
     xs = np.linspace(rango[0], rango[1], 400)
@@ -60,17 +61,16 @@ def graficar(func, rango=(-5,5), puntos_raiz=[]):
             ys.append(np.nan)
 
     plt.axhline(0)
-    plt.plot(xs, ys, label="f(x)")
+    plt.plot(xs, ys)
 
     for p in puntos_raiz:
-        plt.scatter(p, func(p), color="red")
+        plt.scatter(p, func(p))
 
-    plt.legend()
     plt.grid()
     plt.show()
 
 # -------------------------
-# NEWTON-RAPHSON
+# NEWTON
 # -------------------------
 if opcion == "3":
 
@@ -81,19 +81,27 @@ if opcion == "3":
     df_expr = sp.diff(f_expr, x)
     df = sp.lambdify(x, df_expr, "math")
 
+    print("\nIter | x_n | f(x_n) | f'(x_n) | Error")
+    print("------------------------------------------------")
+
     error = 100
+    i = 1
     puntos = []
 
     while error > error_permitido:
-        x1 = x0 - f(x0) / df(x0)
 
+        x1 = x0 - f(x0)/df(x0)
         puntos.append(x1)
 
-        error = abs((x1 - x0) / x1)
+        if i > 1:
+            error = abs((x1 - x0)/x1)
+
+        print(i, "\t", round(x0,6), "\t", round(f(x0),6), "\t", round(df(x0),6), "\t", round(error,6))
+
         x0 = x1
+        i += 1
 
-    print("Raíz:", x1)
-
+    print("\nRaíz:", x1)
     graficar(f, puntos_raiz=puntos)
 
 # -------------------------
@@ -105,25 +113,32 @@ elif opcion == "4":
     x1 = float(input("x1: "))
     error_permitido = float(input("Error permitido: "))
 
+    print("\nIter | x_(i-1) | x_i | x_(i+1) | Error")
+    print("------------------------------------------------")
+
     error = 100
+    i = 1
     puntos = []
 
     while error > error_permitido:
 
         x2 = x1 - (f(x1)*(x1-x0))/(f(x1)-f(x0))
-
         puntos.append(x2)
 
-        error = abs((x2 - x1) / x2)
+        if i > 1:
+            error = abs((x2 - x1)/x2)
+
+        print(i, "\t", round(x0,6), "\t", round(x1,6), "\t", round(x2,6), "\t", round(error,6))
+
         x0 = x1
         x1 = x2
+        i += 1
 
-    print("Raíz:", x2)
-
+    print("\nRaíz:", x2)
     graficar(f, puntos_raiz=puntos)
 
 # -------------------------
-# PUNTO FIJO (CORREGIDO)
+# PUNTO FIJO
 # -------------------------
 elif opcion == "5":
 
@@ -134,7 +149,11 @@ elif opcion == "5":
     g_expr = sp.sympify(g_funcion)
     g = sp.lambdify(x, g_expr, "math")
 
+    print("\nIter | x_i | x_(i+1) | Error")
+    print("------------------------------------------------")
+
     error = 100
+    i = 1
     puntos = []
 
     while error > error_permitido:
@@ -142,16 +161,19 @@ elif opcion == "5":
         x1 = g(x0)
         puntos.append(x1)
 
-        error = abs((x1 - x0) / x1)
+        if i > 1:
+            error = abs((x1 - x0)/x1)
+
+        print(i, "\t", round(x0,6), "\t", round(x1,6), "\t", round(error,6))
+
         x0 = x1
+        i += 1
 
-    print("Raíz:", x1)
-
-    # graficamos g(x)
+    print("\nRaíz:", x1)
     graficar(g, puntos_raiz=puntos)
 
 # -------------------------
-# BISECCIÓN Y REGLA FALSA
+# BISECCIÓN Y FALSA
 # -------------------------
 else:
 
@@ -159,27 +181,37 @@ else:
     b = float(input("b: "))
     error_permitido = float(input("Error permitido: "))
 
+    print("\nIter | a | b | xr | f(xr) | Error")
+    print("------------------------------------------------")
+
     error = abs(b - a)
+    i = 1
     puntos = []
+    xr_anterior = a
 
     while error > error_permitido:
 
         if opcion == "1":
-            xr = (a + b) / 2
+            xr = (a + b)/2
         else:
             xr = b - (f(b)*(a-b))/(f(a)-f(b))
 
         puntos.append(xr)
+
+        if i > 1:
+            error = abs((xr - xr_anterior)/xr)
+
+        print(i, "\t", round(a,6), "\t", round(b,6), "\t", round(xr,6), "\t", round(f(xr),6), "\t", round(error,6))
 
         if f(a)*f(xr) < 0:
             b = xr
         else:
             a = xr
 
-        error = abs(b - a)
+        xr_anterior = xr
+        i += 1
 
-    print("Raíz:", xr)
-
+    print("\nRaíz:", xr)
     graficar(f, rango=(a-2, b+2), puntos_raiz=puntos)
 
 
