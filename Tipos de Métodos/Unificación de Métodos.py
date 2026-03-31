@@ -4,8 +4,8 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 2.0.0
-#Agrege el método de newton-raphson
+#Versión 3.0.0
+#Agrege el método de secante
 
 import math
 import sympy as sp
@@ -19,6 +19,7 @@ print("===== METODOS NUMERICOS =====")
 print("1. Método de Bisección")
 print("2. Método de Regla Falsa")
 print("3. Método de Newton-Raphson")
+print("4. Método de la Secante")
 
 opcion = input("Seleccione el método: ")
 
@@ -27,7 +28,6 @@ opcion = input("Seleccione el método: ")
 # -------------------------
 funcion = input("\nIngresa la función en términos de x: ")
 
-# Función evaluable
 def f(x_val):
     return eval(funcion, {
         "x": x_val,
@@ -42,14 +42,13 @@ def f(x_val):
     })
 
 # -------------------------
-# MÉTODO DE NEWTON
+# NEWTON-RAPHSON
 # -------------------------
 if opcion == "3":
 
     x0 = float(input("Ingresa el valor inicial: "))
     error_permitido = float(input("Ingresa el error permitido: "))
 
-    # Derivada automática
     f_expr = sp.sympify(funcion)
     df_expr = sp.diff(f_expr, x)
     df = sp.lambdify(x, df_expr, "math")
@@ -82,7 +81,42 @@ if opcion == "3":
     print("Error final:", error)
 
 # -------------------------
-# MÉTODOS CON INTERVALO
+# SECANTE
+# -------------------------
+elif opcion == "4":
+
+    x0 = float(input("Ingresa x0: "))
+    x1 = float(input("Ingresa x1: "))
+    error_permitido = float(input("Ingresa el error permitido: "))
+
+    print("\nIter |    x_(i-1)   |    x_i     |    x_(i+1)   |    Error")
+    print("-------------------------------------------------------------")
+
+    i = 1
+    error = 100
+
+    while error > error_permitido:
+
+        if f(x1) - f(x0) == 0:
+            print("\nError: división entre cero.")
+            break
+
+        x2 = x1 - (f(x1) * (x1 - x0)) / (f(x1) - f(x0))
+
+        if i > 1:
+            error = abs((x2 - x1) / x2)
+
+        print(i, "\t", round(x0,6), "\t", round(x1,6), "\t", round(x2,6), "\t", round(error,6))
+
+        x0 = x1
+        x1 = x2
+        i += 1
+
+    print("\nRaíz aproximada:", round(x2,6))
+    print("Error final:", error)
+
+# -------------------------
+# BISECCIÓN Y REGLA FALSA
 # -------------------------
 else:
 
