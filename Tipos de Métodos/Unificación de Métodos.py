@@ -4,10 +4,8 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 4.2.0
-#Agrege las iteraciones.
-#Ya que a la hora de agregar la grafica quite las iteraciones. 
-
+#Versión 4.3.0
+#Mejore parte de los metodos newton-raphson, secante y punto fijo.
 
 import math
 import sympy as sp
@@ -26,24 +24,11 @@ print("5. Método de Punto Fijo")
 
 opcion = input("Seleccione el método: ")
 
-
-# FUNCIÓN GENERAL
+# FUNCIÓN GENERAL (CORREGIDA)
 if opcion != "5":
     funcion = input("\nIngresa la función en términos de x: ")
-
-    def f(x_val):
-        return eval(funcion, {
-            "x": x_val,
-            "exp": math.exp,
-            "sin": math.sin,
-            "cos": math.cos,
-            "tan": math.tan,
-            "log": math.log,
-            "sqrt": math.sqrt,
-            "pi": math.pi,
-            "e": math.e
-        })
-
+    f_expr = sp.sympify(funcion)
+    f = sp.lambdify(x, f_expr, "math")
 
 # GRAFICAR
 def graficar(func, rango=(-5,5), puntos_raiz=[]):
@@ -60,19 +45,20 @@ def graficar(func, rango=(-5,5), puntos_raiz=[]):
     plt.plot(xs, ys)
 
     for p in puntos_raiz:
-        plt.scatter(p, func(p))
+        try:
+            plt.scatter(p, func(p))
+        except:
+            pass
 
     plt.grid()
     plt.show()
 
-
-# NEWTON
+# NEWTON-RAPHSON
 if opcion == "3":
 
     x0 = float(input("Valor inicial: "))
     error_permitido = float(input("Error permitido: "))
 
-    f_expr = sp.sympify(funcion)
     df_expr = sp.diff(f_expr, x)
     df = sp.lambdify(x, df_expr, "math")
 
@@ -84,6 +70,10 @@ if opcion == "3":
     puntos = []
 
     while error > error_permitido:
+
+        if df(x0) == 0:
+            print("Error: derivada cero")
+            break
 
         x1 = x0 - f(x0)/df(x0)
         puntos.append(x1)
@@ -98,7 +88,6 @@ if opcion == "3":
 
     print("\nRaíz:", x1)
     graficar(f, puntos_raiz=puntos)
-
 
 # SECANTE
 elif opcion == "4":
@@ -116,6 +105,10 @@ elif opcion == "4":
 
     while error > error_permitido:
 
+        if f(x1) - f(x0) == 0:
+            print("Error: división entre cero")
+            break
+
         x2 = x1 - (f(x1)*(x1-x0))/(f(x1)-f(x0))
         puntos.append(x2)
 
@@ -130,7 +123,6 @@ elif opcion == "4":
 
     print("\nRaíz:", x2)
     graficar(f, puntos_raiz=puntos)
-
 
 # PUNTO FIJO
 elif opcion == "5":
@@ -157,16 +149,24 @@ elif opcion == "5":
         if i > 1:
             error = abs((x1 - x0)/x1)
 
+        if abs(x1) > 1e6:
+            print("El método diverge")
+            break
+
         print(i, "\t", round(x0,6), "\t", round(x1,6), "\t", round(error,6))
 
         x0 = x1
         i += 1
 
     print("\nRaíz:", x1)
-    graficar(g, puntos_raiz=puntos)
 
+    # Graficar f(x) = g(x) - x
+    def h(val):
+        return g(val) - val
 
-# BISECCIÓN Y FALSA
+    graficar(h, puntos_raiz=puntos)
+
+# BISECCIÓN Y REGLA FALSA
 else:
 
     a = float(input("a: "))
@@ -186,6 +186,9 @@ else:
         if opcion == "1":
             xr = (a + b)/2
         else:
+            if f(a) - f(b) == 0:
+                print("Error: división entre cero")
+                break
             xr = b - (f(b)*(a-b))/(f(a)-f(b))
 
         puntos.append(xr)
