@@ -4,17 +4,16 @@ Created on Thu Mar 26 21:51:58 2026
 
 @author: Alejandro
 """
-#Versión 4.3.0
-#Mejore parte de los metodos newton-raphson, secante y punto fijo.
+#Versión 4.4.0
+#Mejore partes impotantes en lo metodos
 
-import math
 import sympy as sp
 import matplotlib.pyplot as plt
 import numpy as np
 
 x = sp.symbols('x')
 
-# MENÚ
+#MENÚ
 print("===== METODOS NUMERICOS =====")
 print("1. Método de Bisección")
 print("2. Método de Regla Falsa")
@@ -24,13 +23,13 @@ print("5. Método de Punto Fijo")
 
 opcion = input("Seleccione el método: ")
 
-# FUNCIÓN GENERAL (CORREGIDA)
+#FUNCIÓN
 if opcion != "5":
     funcion = input("\nIngresa la función en términos de x: ")
     f_expr = sp.sympify(funcion)
-    f = sp.lambdify(x, f_expr, "math")
+    f = sp.lambdify(x, f_expr, "numpy")
 
-# GRAFICAR
+#GRAFICAR
 def graficar(func, rango=(-5,5), puntos_raiz=[]):
     xs = np.linspace(rango[0], rango[1], 400)
     ys = []
@@ -53,40 +52,42 @@ def graficar(func, rango=(-5,5), puntos_raiz=[]):
     plt.grid()
     plt.show()
 
-# NEWTON-RAPHSON
+#CONFIG 
+MAX_ITER = 100
+
+#NEWTON
 if opcion == "3":
 
     x0 = float(input("Valor inicial: "))
-    error_permitido = float(input("Error permitido: "))
+    tol = float(input("Error permitido: "))
 
     df_expr = sp.diff(f_expr, x)
-    df = sp.lambdify(x, df_expr, "math")
+    df = sp.lambdify(x, df_expr, "numpy")
 
-    print("\nIter | x_n | f(x_n) | f'(x_n) | Error")
-    print("------------------------------------------------")
+    print("\nIter | x_n       | f(x_n)    | Error")
+    print("----------------------------------------")
 
-    error = 100
-    i = 1
     puntos = []
 
-    while error > error_permitido:
+    for i in range(1, MAX_ITER+1):
 
         if df(x0) == 0:
-            print("Error: derivada cero")
+            print("❌ Derivada cero. Se detiene.")
             break
 
         x1 = x0 - f(x0)/df(x0)
         puntos.append(x1)
 
-        if i > 1:
-            error = abs((x1 - x0)/x1)
+        error = abs(x1 - x0)
 
-        print(i, "\t", round(x0,6), "\t", round(f(x0),6), "\t", round(df(x0),6), "\t", round(error,6))
+        print(f"{i:<4} | {x0:<10.6f} | {f(x0):<10.6f} | {error:<10.6f}")
+
+        if error < tol:
+            break
 
         x0 = x1
-        i += 1
 
-    print("\nRaíz:", x1)
+    print("\nRaíz aproximada:", x1)
     graficar(f, puntos_raiz=puntos)
 
 # SECANTE
@@ -94,120 +95,117 @@ elif opcion == "4":
 
     x0 = float(input("x0: "))
     x1 = float(input("x1: "))
-    error_permitido = float(input("Error permitido: "))
+    tol = float(input("Error permitido: "))
 
-    print("\nIter | x_(i-1) | x_i | x_(i+1) | Error")
-    print("------------------------------------------------")
+    print("\nIter | x_i       | Error")
+    print("-----------------------------")
 
-    error = 100
-    i = 1
     puntos = []
 
-    while error > error_permitido:
+    for i in range(1, MAX_ITER+1):
 
-        if f(x1) - f(x0) == 0:
-            print("Error: división entre cero")
+        denom = f(x1) - f(x0)
+        if denom == 0:
+            print("❌ División entre cero.")
             break
 
-        x2 = x1 - (f(x1)*(x1-x0))/(f(x1)-f(x0))
+        x2 = x1 - f(x1)*(x1-x0)/denom
         puntos.append(x2)
 
-        if i > 1:
-            error = abs((x2 - x1)/x2)
+        error = abs(x2 - x1)
 
-        print(i, "\t", round(x0,6), "\t", round(x1,6), "\t", round(x2,6), "\t", round(error,6))
+        print(f"{i:<4} | {x1:<10.6f} | {error:<10.6f}")
 
-        x0 = x1
-        x1 = x2
-        i += 1
+        if error < tol:
+            break
 
-    print("\nRaíz:", x2)
+        x0, x1 = x1, x2
+
+    print("\nRaíz aproximada:", x2)
     graficar(f, puntos_raiz=puntos)
 
-# PUNTO FIJO
+#PUNTO FIJO
 elif opcion == "5":
 
     g_funcion = input("Ingresa g(x): ")
     x0 = float(input("Valor inicial: "))
-    error_permitido = float(input("Error permitido: "))
+    tol = float(input("Error permitido: "))
 
     g_expr = sp.sympify(g_funcion)
-    g = sp.lambdify(x, g_expr, "math")
+    g = sp.lambdify(x, g_expr, "numpy")
 
-    print("\nIter | x_i | x_(i+1) | Error")
-    print("------------------------------------------------")
+    print("\nIter | x_i       | Error")
+    print("-----------------------------")
 
-    error = 100
-    i = 1
     puntos = []
 
-    while error > error_permitido:
+    for i in range(1, MAX_ITER+1):
 
         x1 = g(x0)
         puntos.append(x1)
 
-        if i > 1:
-            error = abs((x1 - x0)/x1)
+        error = abs(x1 - x0)
 
-        if abs(x1) > 1e6:
-            print("El método diverge")
+        print(f"{i:<4} | {x1:<10.6f} | {error:<10.6f}")
+
+        if error < tol:
             break
 
-        print(i, "\t", round(x0,6), "\t", round(x1,6), "\t", round(error,6))
+        if abs(x1) > 1e6:
+            print("❌ El método diverge.")
+            break
 
         x0 = x1
-        i += 1
 
-    print("\nRaíz:", x1)
+    print("\nRaíz aproximada:", x1)
 
-    # Graficar f(x) = g(x) - x
+    # Graficar f(x)=g(x)-x
     def h(val):
         return g(val) - val
 
     graficar(h, puntos_raiz=puntos)
 
-# BISECCIÓN Y REGLA FALSA
+#BISECCIÓN Y FALSA
 else:
 
     a = float(input("a: "))
     b = float(input("b: "))
-    error_permitido = float(input("Error permitido: "))
+    tol = float(input("Error permitido: "))
 
-    print("\nIter | a | b | xr | f(xr) | Error")
-    print("------------------------------------------------")
+    print("\nIter | xr        | Error")
+    print("-----------------------------")
 
-    error = abs(b - a)
-    i = 1
     puntos = []
-    xr_anterior = a
+    xr_old = a
 
-    while error > error_permitido:
+    for i in range(1, MAX_ITER+1):
 
         if opcion == "1":
             xr = (a + b)/2
         else:
-            if f(a) - f(b) == 0:
-                print("Error: división entre cero")
+            denom = f(a) - f(b)
+            if denom == 0:
+                print("❌ División entre cero.")
                 break
-            xr = b - (f(b)*(a-b))/(f(a)-f(b))
+            xr = b - f(b)*(a-b)/denom
 
         puntos.append(xr)
 
-        if i > 1:
-            error = abs((xr - xr_anterior)/xr)
+        error = abs(xr - xr_old)
 
-        print(i, "\t", round(a,6), "\t", round(b,6), "\t", round(xr,6), "\t", round(f(xr),6), "\t", round(error,6))
+        print(f"{i:<4} | {xr:<10.6f} | {error:<10.6f}")
+
+        if error < tol:
+            break
 
         if f(a)*f(xr) < 0:
             b = xr
         else:
             a = xr
 
-        xr_anterior = xr
-        i += 1
+        xr_old = xr
 
-    print("\nRaíz:", xr)
+    print("\nRaíz aproximada:", xr)
     graficar(f, rango=(a-2, b+2), puntos_raiz=puntos)
-
 
 
