@@ -16,9 +16,7 @@ import numpy as np
 
 x = sp.symbols('x')
 
-# -------------------------
 # MENÚ
-# -------------------------
 print("===== METODOS NUMERICOS =====")
 print("1. Método de Bisección")
 print("2. Método de Regla Falsa")
@@ -28,9 +26,8 @@ print("5. Método de Punto Fijo")
 
 opcion = input("Seleccione el método: ")
 
-# -------------------------
+
 # FUNCIÓN GENERAL
-# -------------------------
 if opcion != "5":
     funcion = input("\nIngresa la función en términos de x: ")
 
@@ -47,9 +44,8 @@ if opcion != "5":
             "e": math.e
         })
 
-# -------------------------
+
 # GRAFICAR
-# -------------------------
 def graficar(func, rango=(-5,5), puntos_raiz=[]):
     xs = np.linspace(rango[0], rango[1], 400)
     ys = []
@@ -69,9 +65,8 @@ def graficar(func, rango=(-5,5), puntos_raiz=[]):
     plt.grid()
     plt.show()
 
-# -------------------------
+
 # NEWTON
-# -------------------------
 if opcion == "3":
 
     x0 = float(input("Valor inicial: "))
@@ -104,9 +99,8 @@ if opcion == "3":
     print("\nRaíz:", x1)
     graficar(f, puntos_raiz=puntos)
 
-# -------------------------
+
 # SECANTE
-# -------------------------
 elif opcion == "4":
 
     x0 = float(input("x0: "))
@@ -137,9 +131,8 @@ elif opcion == "4":
     print("\nRaíz:", x2)
     graficar(f, puntos_raiz=puntos)
 
-# -------------------------
+
 # PUNTO FIJO
-# -------------------------
 elif opcion == "5":
 
     g_funcion = input("Ingresa g(x): ")
@@ -172,9 +165,8 @@ elif opcion == "5":
     print("\nRaíz:", x1)
     graficar(g, puntos_raiz=puntos)
 
-# -------------------------
+
 # BISECCIÓN Y FALSA
-# -------------------------
 else:
 
     a = float(input("a: "))
