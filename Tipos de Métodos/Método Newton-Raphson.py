@@ -55,7 +55,7 @@ def newton_raphson():
 
         x1 = x0 - f(x0)/df(x0)
 
-        # ✅ ERROR CORREGIDO (sin división por cero)
+        # ERROR CORREGIDO (sin división por cero)
         ea = abs(x1 - x0)
 
         print(f"{iteracion:4} | {x0:10.6f} | {f(x0):10.6f} | {ea:10.6f}")
